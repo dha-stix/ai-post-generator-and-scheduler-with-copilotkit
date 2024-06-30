@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { writeFile } from "fs";
 
 const BasicAuthToken = Buffer.from(
 	`${process.env.TWITTER_CLIENT_ID!}:${process.env.TWITTER_CLIENT_SECRET!}`,
@@ -12,10 +13,8 @@ const twitterOauthTokenParams = {
 	grant_type: "authorization_code",
 };
 
-
 //gets user access token
-
-export const fetchUserToken = async (code: string) => {
+const fetchUserToken = async (code: string) => {
 	try {
 		const formatData = new URLSearchParams({
 			...twitterOauthTokenParams,
@@ -38,8 +37,9 @@ export const fetchUserToken = async (code: string) => {
 		return null;
 	}
 };
+
 //gets user's data from the access token
-export const fetchUserData = async (accessToken: string) => {
+const fetchUserData = async (accessToken: string) => {
 	try {
 		const getUserRequest = await fetch("https://api.twitter.com/2/users/me", {
 			headers: {
@@ -57,19 +57,31 @@ export const fetchUserData = async (accessToken: string) => {
 export async function POST(req: NextRequest) {
 	const { code } = await req.json();
 	try {
+		//👇🏻 get access token and the entire response
 		const tokenResponse = await fetchUserToken(code);
-        const accessToken = await tokenResponse.access_token;
-        
+		const accessToken = await tokenResponse.access_token;
+		//👇🏻 get user data
 		const userDataResponse = await fetchUserData(accessToken);
-        const userCredentials = { ...tokenResponse, ...userDataResponse };
+		const userCredentials = { ...tokenResponse, ...userDataResponse };
 
+		//👇🏻  merge the user's access token, id, and username into an object
+		const userData = {
+			accessToken: userCredentials.access_token,
+			_id: userCredentials.data.id,
+			username: userCredentials.data.username,
+		};
+		//👇🏻 store them in a JSON file (for server-use)
+		writeFile("./src/user.json", JSON.stringify(userData, null, 2), (error) => {
+			if (error) {
+				console.log("An error has occurred ", error);
+				throw error;
+			}
+			console.log("Data written successfully to disk");
+		});
+		//👇🏻 returns a successful response
 		return NextResponse.json(
 			{
-				data: {
-					accessToken: userCredentials.access_token,
-					_id: userCredentials.data.id,
-					username: userCredentials.data.username,
-				},
+				data: "User data stored successfully",
 			},
 			{ status: 200 }
 		);

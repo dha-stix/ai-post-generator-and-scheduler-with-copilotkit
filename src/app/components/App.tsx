@@ -51,7 +51,7 @@ export default function App({ yourSchedule, updateYourSchedule }: Props) {
 	useCopilotReadable({
 		description: "Guidelines for the user's Twitter post schedule",
 		value:
-			"Your schedule is displayed in a table format. Each row represents an hour of the day, and each column represents a day of the week. You can add a post by clicking on an empty cell, and delete a post by clicking on a filled cell.",
+			"Your schedule is displayed in a table format. Each row represents an hour of the day, and each column represents a day of the week. You can add a post by clicking on an empty cell, and delete a post by clicking on a filled cell. Sunday is the first day of the week and has a day_id of 0.",
 	});
 
 	useCopilotAction({
@@ -59,7 +59,7 @@ export default function App({ yourSchedule, updateYourSchedule }: Props) {
 		description: "Update the user's Twitter post schedule",
 		parameters: [
 			{
-				name: "schedule",
+				name: "update_schedule",
 				type: "object",
 				description: "The user's updated post schedule",
 				attributes: [
@@ -98,16 +98,17 @@ export default function App({ yourSchedule, updateYourSchedule }: Props) {
 				],
 			},
 		],
-		handler: ({ schedule }) => {
+		handler: ({ update_schedule }) => {
 			setAddEventModal(true);
+			console.log(update_schedule);
 			setSelectedCell({
-				day_id: schedule.schedule[0].day + 1,
-				day: tableHeadings[schedule.schedule[0].day + 1],
-				time_id: schedule.time,
-				time: formatTime(schedule.time),
+				day_id: update_schedule.schedule[0].day + 1,
+				day: tableHeadings[update_schedule.schedule[0].day + 1],
+				time_id: update_schedule.time,
+				time: formatTime(update_schedule.time),
 			});
-			setContent(schedule.schedule[0].content);
-			setMinute(schedule.schedule[0].minutes);
+			setContent(update_schedule.schedule[0].content);
+			setMinute(update_schedule.schedule[0].minutes);
 		},
 		render: "Updating schedule...",
 	});

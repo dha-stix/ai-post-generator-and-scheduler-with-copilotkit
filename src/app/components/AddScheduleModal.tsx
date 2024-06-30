@@ -44,11 +44,29 @@ export default function AddScheduleModal({
 				minutes: minute,
 				day: selectedCell.day_id,
 			});
-			localStorage.setItem("schedule", JSON.stringify(newSchedule));
-			updateYourSchedule(newSchedule);
-			closeModal();
+			updateScheduleDB(newSchedule);
 		}
 	};
+
+		const updateScheduleDB = async (schedule: AvailableScheduleItem[]) => {
+		try {
+			const res = await fetch("/api/schedule", {
+				method: "POST",
+				body: JSON.stringify({ schedule }),
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+			if (res.ok) {
+				const data = await res.json();
+				updateYourSchedule(schedule);
+				console.log(data);
+				closeModal();
+			}
+		} catch (error) { 
+			console.error("Error:", error);
+		}
+}
 
 	return (
 		<div>

@@ -27,7 +27,7 @@ export default function DeleteScheduleModal({
 			const initialSchedule = [...yourSchedule];
 			let selectedDay =
 				initialSchedule[delSelectedCell.time_id].schedule[
-					delSelectedCell.day_id - 1
+				delSelectedCell.day_id - 1
 				];
 			const updatedPosts = selectedDay.filter(
 				(day) =>
@@ -37,11 +37,29 @@ export default function DeleteScheduleModal({
 			initialSchedule[delSelectedCell.time_id].schedule[
 				delSelectedCell.day_id - 1
 			] = updatedPosts;
-			updateYourSchedule(initialSchedule);
-			localStorage.setItem("schedule", JSON.stringify(initialSchedule));
-			closeModal();
+			updateScheduleDB(initialSchedule);
+
 		}
 	};
+
+	const updateScheduleDB = async (schedule: AvailableScheduleItem[]) => {
+		try {
+			const res = await fetch("/api/schedule", {
+				method: "POST",
+				body: JSON.stringify({ schedule }),
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+			if (res.ok) {
+				const data = await res.json();
+				updateYourSchedule(schedule);
+				closeModal();
+			}
+		} catch (error) { 
+			console.error("Error:", error);
+		}
+}
 
 	return (
 		<div>
