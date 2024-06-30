@@ -13,13 +13,22 @@
   NEXT_PUBLIC_TWITTER_CLIENT_ID=<client_id>
   TWITTER_CLIENT_SECRET=<client_secret>
   ```
-  
+
 - Run `npm install` to install the project dependencies
   ```bash
   npm install
   ```
 
-- Start the development server by running the code snippet below:
+- Start your [Redis server](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-mac-os/)
+  ```bash
+  redis-server
+  ```
+- Run the `worker.ts` file in another terminal:
+  ```bash
+  npm run worker
+  ```
+
+- Start the development server by running the code snippet below in a different terminal:
   ```bash
   npm run dev
   ```
